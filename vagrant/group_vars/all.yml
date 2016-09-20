@@ -1,0 +1,5 @@
+---
+ajgarlag_tinc_node_public_address: '{{ ansible_eth1.ipv4.address }}'
+
+ajgarlag_tinc_node_directives:
+    Mode: switch

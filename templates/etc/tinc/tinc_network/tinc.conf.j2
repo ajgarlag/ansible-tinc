@@ -1,0 +1,9 @@
+{% for key, value in ajgarlag_tinc_network_directives.iteritems() -%}
+{{key}} = {{value}}
+{% endfor %}
+
+{% for node in groups[ajgarlag_tinc_network_nodes_group] -%}
+{% if hostvars[node]['ajgarlag_tinc_node_name'] != ajgarlag_tinc_node_name %}
+ConnectTo = {{ hostvars[node]['ajgarlag_tinc_node_name'] }}
+{% endif %}
+{%- endfor %}

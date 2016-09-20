@@ -1,0 +1,37 @@
+---
+ajgarlag_tinc_network: myvpn
+
+ajgarlag_tinc_network_autostart: true
+
+ajgarlag_tinc_network_directives:
+    Name: '{{ ajgarlag_tinc_node_name }}'
+    AddressFamily: ipv4
+
+ajgarlag_tinc_network_nodes_group: all
+
+ajgarlag_tinc_node_public_address: '{{ ansible_eth0.ipv4.address }}'
+
+#ajgarlag_tinc_node_name: node01 #override this for each host
+
+#ajgarlag_tinc_node_address: 10.0.0.1/8 #override this for each host
+
+ajgarlag_tinc_node_directives: {}
+
+ajgarlag_tinc_node_up_script: |
+    #!/bin/bash
+    ifconfig $INTERFACE {{ ajgarlag_tinc_node_address }}
+
+ajgarlag_tinc_node_down_script: |
+    #!/bin/bash
+    ifconfig $INTERFACE down
+
+ajgarlag_tinc_road_warriors: {}
+#  node_identifier:
+#    directives:
+#      Subnet: 10.9.8.7/24
+#    pubkey: |
+#      -----BEGIN PUBLIC KEY-----
+#      MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCqGKukO1De7zhZj6+H0qtjTkVxwTCpvKe4eCZ0
+#      FPqri0cb2JZfXJ/DgYSF6vUpwmJG8wVQZKjeGcjDOL5UlsuusFncCzWBQ7RKNUSesmQRMSGkVb1/
+#      3j+skZ6UtW+5u09lHNsj6tQ51s1SPrCBkedbNf0Tp0GbMJDyR4e9T04ZZwIDAQAB
+#      -----END PUBLIC KEY-----

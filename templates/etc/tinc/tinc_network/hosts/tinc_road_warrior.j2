@@ -1,0 +1,7 @@
+{% if item.value.directives is defined %}
+{% for key, value in item.value.directives.iteritems() -%}
+{{key}} = {{value}}
+{% endfor %}
+{% endif %}
+
+{{ item.value.pubkey }}

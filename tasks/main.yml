@@ -1,0 +1,116 @@
+---
+- name: Checking tinc node variables
+  assert:
+    that:
+      - ajgarlag_tinc_node_name is defined
+      - ajgarlag_tinc_node_address is defined
+
+- name: Installing tinc package
+  apt:
+    pkg: tinc
+    state: latest
+
+- name: Creating tinc network directories
+  file:
+    path: /etc/tinc/{{ ajgarlag_tinc_network }}/hosts
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+    recurse: true
+
+- name: Copying tinc network configuration
+  template:
+    src: etc/tinc/tinc_network/tinc.conf.j2
+    dest: /etc/tinc/{{ ajgarlag_tinc_network }}/tinc.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart tinc
+
+- name: Creating tinc private key
+  shell: tincd -n {{ ajgarlag_tinc_network }} -K4096
+  args:
+    creates: /etc/tinc/{{ ajgarlag_tinc_network }}/rsa_key.priv
+  notify:
+    - restart tinc
+
+- name: Fixing tinc private key permissions
+  file:
+    dest: /etc/tinc/{{ ajgarlag_tinc_network }}/rsa_key.priv
+    owner: root
+    group: root
+    mode: 0600
+
+- name: Undefining old tinc node directives
+  lineinfile:
+    dest: /etc/tinc/{{ ajgarlag_tinc_network }}/hosts/{{ ajgarlag_tinc_node_name }}
+    state: absent
+    regexp: ' = '
+  changed_when: false
+
+- name: Defining tinc node addresses
+  lineinfile:
+    dest: /etc/tinc/{{ ajgarlag_tinc_network }}/hosts/{{ ajgarlag_tinc_node_name }}
+    line: 'Address = {{ ajgarlag_tinc_node_public_address }}'
+  changed_when: false
+
+- name: Defining tinc node directives
+  lineinfile:
+    dest: /etc/tinc/{{ ajgarlag_tinc_network }}/hosts/{{ ajgarlag_tinc_node_name }}
+    line: '{{ item.key }} = {{ item.value }}'
+    regexp: '^{{ item.key }} = '
+  with_dict: '{{ ajgarlag_tinc_node_directives }}'
+  changed_when: false
+
+- name: Fetching tinc host file
+  fetch:
+    src: /etc/tinc/{{ ajgarlag_tinc_network }}/hosts/{{ ajgarlag_tinc_node_name }}
+    dest: '{{ playbook_dir }}/fetch/etc/tinc/{{ ajgarlag_tinc_network }}/hosts/'
+    flat: yes
+
+- name: Creating tinc road warriors host files
+  template:
+    src: etc/tinc/tinc_network/hosts/tinc_road_warrior.j2
+    dest: '{{ playbook_dir }}/fetch/etc/tinc/{{ ajgarlag_tinc_network }}/hosts/{{ item.key }}'
+  become: false
+  run_once: true
+  delegate_to: 127.0.0.1
+  with_dict: '{{ ajgarlag_tinc_road_warriors }}'
+
+- name: Copying tinc hosts files
+  copy:
+    src: '{{ item }}'
+    dest: /etc/tinc/{{ ajgarlag_tinc_network }}/hosts/
+  with_fileglob: '{{ playbook_dir }}/fetch/etc/tinc/{{ ajgarlag_tinc_network }}/hosts/*'
+  notify:
+    - restart tinc
+
+- name: Creating tinc-up script
+  copy:
+    content: '{{ ajgarlag_tinc_node_up_script }}'
+    dest: /etc/tinc/{{ ajgarlag_tinc_network }}/tinc-up
+    owner: root
+    group: root
+    mode: 0755
+  notify:
+    - restart tinc
+
+- name: Creating tinc-down script
+  copy:
+    content: '{{ ajgarlag_tinc_node_down_script }}'
+    dest: /etc/tinc/{{ ajgarlag_tinc_network }}/tinc-down
+    owner: root
+    group: root
+    mode: 0755
+  notify:
+    - restart tinc
+
+- name: Enabling network autostart
+  lineinfile:
+    dest: /etc/tinc/nets.boot
+    line: '{{ ajgarlag_tinc_network }}'
+    state: "{% if ajgarlag_tinc_network_autostart %}present{% else %}absent{% endif %}"
+  notify:
+    - restart tinc

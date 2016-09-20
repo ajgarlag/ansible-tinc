@@ -1,0 +1,10 @@
+- name: tinc test
+  hosts: all
+  become: yes
+  pre_tasks:
+    - apt:
+        update_cache: true
+        cache_valid_time: 3600
+
+  roles:
+    - ajgarlag.tinc
