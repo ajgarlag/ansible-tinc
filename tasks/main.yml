@@ -1,10 +1,4 @@
 ---
-- name: Checking tinc node variables
-  assert:
-    that:
-      - ajgarlag_tinc_node_name is defined
-      - ajgarlag_tinc_node_address is defined
-
 - name: Installing tinc package
   apt:
     pkg: tinc
