@@ -106,7 +106,7 @@
     dest: /etc/tinc/nets.boot
     line: '{{ ajgarlag_tinc_network }}'
     state: "{% if ajgarlag_tinc_network_autostart %}present{% else %}absent{% endif %}"
-  when: '{{ ansible_distribution_major_version | int < 9 }}'
+  when: 'ansible_distribution_major_version | int < 9'
   notify:
     - restart tinc
 
@@ -114,6 +114,6 @@
   systemd:
     name: 'tinc@{{ ajgarlag_tinc_network }}'
     enabled: "{% if ajgarlag_tinc_network_autostart %}yes{% else %}no{% endif %}"
-  when: '{{ ansible_distribution_major_version | int >= 9 }}'
+  when: 'ansible_distribution_major_version | int >= 9'
   notify:
     - restart tinc
