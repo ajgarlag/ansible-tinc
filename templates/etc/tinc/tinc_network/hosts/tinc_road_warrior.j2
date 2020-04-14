@@ -1,5 +1,5 @@
 {% if item.value.directives is defined %}
-{% for key, value in item.value.directives.iteritems() -%}
+{% for key, value in item.value.directives.items() -%}
 {{key}} = {{value}}
 {% endfor %}
 {% endif %}
