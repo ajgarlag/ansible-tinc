@@ -7,9 +7,9 @@ galaxy_info:
   platforms:
     - name: Debian
       versions:
-        - wheezy
         - jessie
         - stretch
+        - buster
   categories:
     - networking
 dependencies: []
