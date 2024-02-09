@@ -19,11 +19,13 @@ ajgarlag_tinc_node_directives: {}
 
 ajgarlag_tinc_node_up_script: |
     #!/bin/bash
-    ifconfig $INTERFACE {{ ajgarlag_tinc_node_address }}
+    ip link set dev $INTERFACE up
+    ip address add {{ ajgarlag_tinc_node_address }}/32 dev $INTERFACE
 
 ajgarlag_tinc_node_down_script: |
     #!/bin/bash
-    ifconfig $INTERFACE down
+    ip address del {{ ajgarlag_tinc_node_address }}/32 dev $INTERFACE
+    ip link set dev $INTERFACE down
 
 ajgarlag_tinc_road_warriors: {}
 #  node_identifier:
