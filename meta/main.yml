@@ -1,5 +1,6 @@
 ---
 galaxy_info:
+  role_name: tinc
   author: Antonio J. García Lagar
   description: Ansible role to configure a TINC network.
   license: MIT
